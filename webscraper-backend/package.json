@@ -9,11 +9,12 @@
   "author": "Stephan",
   "license": "ISC",
   "dependencies": {
-    "axios": "^0.18.0",
     "cheerio": "^1.0.0-rc.2",
+    "cors": "^2.8.5",
     "express": "^4.16.4",
     "express-graphql": "^0.7.1",
     "graphql": "^14.0.2",
-    "mongojs": "^2.6.0"
+    "mongojs": "^2.6.0",
+    "request": "^2.88.0"
   }
 }

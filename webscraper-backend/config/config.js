@@ -21,6 +21,13 @@ const webScraperORMLite = {
 				resolve(docs)
 			})
 		})
+	},
+	removeAll: ()=>{
+		return new Promise((resolve,reject)=>{
+			db.webData.remove(()=>{
+				console.log('removed!')
+			})
+		})
 	}
 }
 
