@@ -12,7 +12,8 @@ request('https://www.usatoday.com/sports/', (err, res, html) => {
     const link = $(el).children().attr("href");
     const obj = {
       title,
-      link
+      link,
+      commentId: []
     }
     db.create(obj).then(res => { console.log(res) })
   })
@@ -24,13 +25,14 @@ const {
   GraphQLSchema,
   GraphQLString,
   GraphQLList,
+  GraphQLID
 } = require('graphql');
 
 const SportsNewsType = new GraphQLObjectType({
   name: 'SportsNews',
   fields: () => ({
     _id: {
-      type: GraphQLString,
+      type: GraphQLID,
       description: 'id of news data'
     },
     title: {
@@ -40,6 +42,36 @@ const SportsNewsType = new GraphQLObjectType({
     link: {
       type: GraphQLString,
       description: 'href to the article'
+    },
+    comments: {
+      type: new GraphQLList(SportsNewsCommentsType),
+      description: 'User comments',
+      resolve(parent, args){
+        const arr = []
+        parent.commentId.forEach(comment=>{
+          // db.findComment function
+          const obj = {
+            // data here
+          }
+          arr.push(obj)
+        })
+        // TODO: return arr 
+        return "comments here"
+      }
+    }
+  })
+})
+
+const SportsNewsCommentsType = new GraphQLObjectType({
+  name: 'SportsNewsComments',
+  fields: () => ({
+    _id: {
+      type: GraphQLID,
+      description: 'id of news data'
+    },
+    comment: {
+      type: GraphQLString,
+      description: 'News article Headline'
     }
   })
 })
@@ -48,7 +80,7 @@ const SportsNewsType = new GraphQLObjectType({
 const rootQuery = new GraphQLObjectType({
   name: 'RootQueryType',
   fields: {
-    sportsnews: {
+    AllSportsNews: {
       type: new GraphQLList(SportsNewsType),
       resolve() {
         return db.findAll()
@@ -67,6 +99,25 @@ const rootQuery = new GraphQLObjectType({
           .catch(err => {
             return (err)
           })
+      }
+    },
+    OneSportsNews:{
+      type: SportsNewsType,
+      args: {id: {type: GraphQLID}},
+      resolve(parent,args){
+        return(
+          db.findOne(args.id)
+          .then(res=>{
+            const obj = {
+              title: res.title,
+              link: res.link
+            }
+            return obj
+          })
+          .catch(err=>{
+            return err
+          })
+          )
       }
     }
   }
