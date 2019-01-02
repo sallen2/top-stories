@@ -67,11 +67,11 @@ const SportsNewsCommentsType = new GraphQLObjectType({
   fields: () => ({
     _id: {
       type: GraphQLID,
-      description: 'id of news data'
+      description: 'id of comment data'
     },
     comment: {
       type: GraphQLString,
-      description: 'News article Headline'
+      description: 'user comments'
     }
   })
 })
