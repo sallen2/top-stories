@@ -3,22 +3,6 @@ const cheerio = require('cheerio');
 const db = require('../config/config')
 
 
-request('https://www.usatoday.com/sports/', (err, res, html) => {
-  db.removeAll()
-  if (err) throw new Error('Something went wrong')
-  const $ = cheerio.load(html)
-  $('ul.contents li').each(function (i, el) {
-    const title = $(el).text()
-    const link = $(el).children().attr("href");
-    const obj = {
-      title,
-      link,
-      commentId: []
-    }
-    db.create(obj).then(res => { console.log(res) })
-  })
-})
-
 const {
   GraphQLObjectType,
   GraphQLNonNull,
@@ -27,6 +11,16 @@ const {
   GraphQLList,
   GraphQLID
 } = require('graphql');
+
+const dataLoaded = new GraphQLObjectType({
+  name: 'DataLoaded',
+  fields: () => ({
+    message: {
+      type: GraphQLString,
+      description: 'Message that indicates the Sports News articles have been loaded'
+    }
+  })
+})
 
 const SportsNewsType = new GraphQLObjectType({
   name: 'SportsNews',
@@ -46,17 +40,19 @@ const SportsNewsType = new GraphQLObjectType({
     comments: {
       type: new GraphQLList(SportsNewsCommentsType),
       description: 'User comments',
-      resolve(parent, args){
+      resolve(parent, args) {
         const arr = []
-        parent.commentId.forEach(comment=>{
-          // db.findComment function
-          const obj = {
-            // data here
-          }
-          arr.push(obj)
+        console.log(parent)
+        return parent.commentIds.map(comment => {
+          return db.findComment(comment)
+            .then(res => {
+              console.log(res)
+              return ({ comment: res.comment })
+            })
+            .catch(err => {
+              return err
+            })
         })
-        // TODO: return arr 
-        return "comments here"
       }
     }
   })
@@ -65,10 +61,6 @@ const SportsNewsType = new GraphQLObjectType({
 const SportsNewsCommentsType = new GraphQLObjectType({
   name: 'SportsNewsComments',
   fields: () => ({
-    _id: {
-      type: GraphQLID,
-      description: 'id of comment data'
-    },
     comment: {
       type: GraphQLString,
       description: 'user comments'
@@ -90,7 +82,8 @@ const rootQuery = new GraphQLObjectType({
               const obj = {
                 _id: String(el._id),
                 title: el.title,
-                link: el.link
+                link: el.link,
+                commentIds: el.commentIds
               }
               arr.push(obj)
             })
@@ -101,29 +94,75 @@ const rootQuery = new GraphQLObjectType({
           })
       }
     },
-    OneSportsNews:{
+    OneSportsNews: {
       type: SportsNewsType,
-      args: {id: {type: GraphQLID}},
-      resolve(parent,args){
-        return(
+      args: { id: { type: GraphQLID } },
+      resolve(parent, args) {
+        return (
           db.findOne(args.id)
-          .then(res=>{
-            const obj = {
-              title: res.title,
-              link: res.link
-            }
-            return obj
-          })
-          .catch(err=>{
-            return err
-          })
-          )
+            .then(res => {
+              const obj = {
+                title: res.title,
+                link: res.link
+              }
+              return obj
+            })
+            .catch(err => {
+              return err
+            })
+        )
       }
     }
   }
 })
 
+const Mutations = new GraphQLObjectType({
+  name: 'Mutations',
+  fields: {
+    addComment: {
+      type: SportsNewsCommentsType,
+      args: {
+        comment: { type: GraphQLString },
+        id: { type: GraphQLString }
+      },
+      resolve(parent, args) {
+        return db.createComment({
+          comment: args.comment
+        }, args.id)
+          .then(res => {
+            console.log(res.title)
+            return ({ comment: args.comment })
+          })
+          .catch(err => {
+            return (err)
+          })
+      }
+    },
+    loadData: {
+      type: dataLoaded,
+      resolve() {
+        request('https://www.usatoday.com/sports/', (err, res, html) => {
+          db.removeAll()
+          if (err) throw new Error('Something went wrong')
+          const $ = cheerio.load(html)
+          $('ul.contents li').each(function (i, el) {
+            const title = $(el).text()
+            const link = $(el).children().attr("href");
+            const obj = {
+              title,
+              link,
+              commentIds: []
+            }
+            db.create(obj).then(res => { console.log(res) })
+          })
+        })
+        return ({ message: 'News articles have been loaded!' })
+      }
+    }
+  }
+})
 
 module.exports = new GraphQLSchema({
-  query: rootQuery
+  query: rootQuery,
+  mutation: Mutations
 })
