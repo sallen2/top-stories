@@ -17,4 +17,4 @@ You con view the live project [here](http://www.stephanallen.com/)
 
 ## Author
 
-* **Stephan Allen** - View my portfolio  [here](http://www.stephanallen.com/)
+**Stephan Allen** - View my portfolio  [here](http://www.stephanallen.com/)
