@@ -1,3 +1,4 @@
+require('dotenv').config()
 const express = require('express');
 const graphqlHTTP = require('express-graphql');
 const schema = require('./schema/graphqlSchema')
@@ -10,6 +11,6 @@ app.use('/graphql',graphqlHTTP({
 	graphiql: true
 }))
 
-app.listen(4000,()=>{
+app.listen(4000 || process.env.PORT,()=>{
 	console.log('server is listening on http://localhost:4000')
 })

@@ -1,5 +1,5 @@
 const mongojs = require('mongojs');
-const db = mongojs('mongodb://sallen20:a12345@ds119323.mlab.com:19323/webscraper', ['webData','comments']);
+const db = mongojs(process.env.DB_URI, ['webData','comments']);
 
 
 const webScraperORMLite = {

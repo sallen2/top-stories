@@ -10,38 +10,54 @@ const getDataQuery = gql`
     _id
     title
     link
+    comments{
+      comment
+    }
   }
 }
 `
 const loadData = gql`
 mutation{
   loadData{
-    message
+    _id
+    title
+    link
   }
 }
 `
 
 class Page extends Component {
-  
-  cardRender = ()=>{
-    if(this.props.dataQuery.loading){
-      return(
-      <div>
-        <h1>loading</h1>
-      </div>)
-    }else{
-      return this.props.dataQuery.AllSportsNews.map((news, i)=>{
-        return <Card key={news._id} {...news} num={i+1}/>
-      })
+
+  state = {
+    showButton: true,
+  }
+
+  cardRender = () => {
+    if (this.props.dataQuery.loading) {
+      return (
+        <div>
+          <h1>Loading</h1>
+        </div>
+      )
+    } else {
+      return (
+        this.props.dataQuery.AllSportsNews.map((news,i)=>{
+          return <Card cardRender={this.cardRender} key={news._id} num={i + 1} {...news} />
+        })
+      )
     }
   }
 
-  render() { 
-    console.log(this.props.dataQuery)
+  showNewsHandler = ()=>{
+    this.setState({showButton: false})
+  }
+
+  render() {
     return (
-      <div>
+      <div className='.container'>
         <img className='fitImg' src="http://khelfeed.com/wp-content/uploads/2017/10/sport-header.jpg" alt="Sports" />
-        {this.cardRender()}
+        <div className="centered"><h2>Welcome to Top Sports News!</h2></div>
+        {this.state.showButton ? <button className="waves-effect waves-light btn blue-grey darken-3 pulse centeredBtn" onClick={this.showNewsHandler}>Find News  <i className="fas fa-newspaper"></i></button> : this.cardRender()}
       </div>
     )
   }

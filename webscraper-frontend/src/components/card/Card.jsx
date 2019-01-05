@@ -7,10 +7,6 @@ class Card extends Component {
   state = {
     showComment: false
   }
-  getData = () => {
-    this.props.loadData()
-    this.forceUpdate()
-  }
 
   showComment = (e) => {
     console.log(e)
@@ -24,12 +20,12 @@ class Card extends Component {
           <div className="card blue-grey darken-1">
             <div className="card-content white-text">
               <span className="card-title">Sports Story {this.props.num}</span>
-              <p>{this.props.title}</p>
+              <h4>{this.props.title}</h4>
             </div>
-            <div className="card-action">
+            <div id={this.props._id} className="card-action">
               <a href={`https://www.usatoday.com${this.props.link}`}>More Info</a>
-              <span num={this.props.num} onClick={this.showComment} className="waves-effect waves-light btn">Comment</span>
-              {this.state.showComment ? <Comment /> : null}
+              <span num={this.props.num} onClick={this.showComment} className="waves-effect waves-light btn blue-grey darken-3">Comment</span>
+              {this.state.showComment ? <Comment id={this.props._id} comments={this.props.comments} /> : null}
             </div>
           </div>
         </div>

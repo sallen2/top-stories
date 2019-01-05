@@ -42,11 +42,9 @@ const SportsNewsType = new GraphQLObjectType({
       description: 'User comments',
       resolve(parent, args) {
         const arr = []
-        console.log(parent)
         return parent.commentIds.map(comment => {
           return db.findComment(comment)
             .then(res => {
-              console.log(res)
               return ({ comment: res.comment })
             })
             .catch(err => {
@@ -130,7 +128,6 @@ const Mutations = new GraphQLObjectType({
           comment: args.comment
         }, args.id)
           .then(res => {
-            console.log(res.title)
             return ({ comment: args.comment })
           })
           .catch(err => {
@@ -139,7 +136,7 @@ const Mutations = new GraphQLObjectType({
       }
     },
     loadData: {
-      type: dataLoaded,
+      type: new GraphQLList(SportsNewsType),
       resolve() {
         request('https://www.usatoday.com/sports/', (err, res, html) => {
           db.removeAll()
@@ -156,7 +153,23 @@ const Mutations = new GraphQLObjectType({
             db.create(obj).then(res => { console.log(res) })
           })
         })
-        return ({ message: 'News articles have been loaded!' })
+        return db.findAll()
+        .then(res => {
+          const arr = []
+          res.forEach(el => {
+            const obj = {
+              _id: String(el._id),
+              title: el.title,
+              link: el.link,
+              commentIds: el.commentIds
+            }
+            arr.push(obj)
+          })
+          return (arr)
+        })
+        .catch(err => {
+          return (err)
+        })
       }
     }
   }

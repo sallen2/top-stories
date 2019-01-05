@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
-import Header from './components/Title'
+import Header from './components/title/Title'
 import Page from './components/page/Page'
-import Card from './components/card/Card'
 import ApolloClient from 'apollo-boost'
 import { ApolloProvider } from 'react-apollo'
-
+import './App.css'
 const client = new ApolloClient({
   uri: 'http://localhost:4000/graphql'
 })
@@ -19,7 +18,7 @@ class App extends Component {
   render() {
     return (
       <ApolloProvider client={client}>
-        <div>
+        <div className="theFont">
           <Header />
           <Page />
         </div>
