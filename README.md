@@ -13,7 +13,7 @@ A sports news site that webscrapes US Today Sports. Built with express, graphql 
 
 ## Deployment
 
-You con view the live project [here](http://www.stephanallen.com/)
+You con view the live project [here](https://sportstories.herokuapp.com/)
 
 ## Author
 
